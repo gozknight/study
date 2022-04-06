@@ -64,8 +64,5 @@ func A(r io.Reader, w io.Writer) {
 
 func main() {
 	A(os.Stdin, os.Stdout)
+	B(os.Stdin, os.Stdout)
 }
-
-
-
-
