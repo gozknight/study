@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// GetRandomCode 生成验证码
+// GetRandomCode 随机生成验证码
 func GetRandomCode() (ans string) {
 	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < 6; i++ {
