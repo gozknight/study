@@ -5,6 +5,7 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	_ "gozknight.com/online-judge/docs"
+	"gozknight.com/online-judge/internal/middleware"
 	"gozknight.com/online-judge/internal/service"
 )
 
@@ -38,6 +39,9 @@ func Router() *gin.Engine {
 	{
 		r.GET("/submit", service.GetSubmitList)
 	}
-
+	// 管理员
+	{
+		r.POST("/admin/problem/add", middleware.AuthAdmin(), service.AddProblem)
+	}
 	return r
 }
