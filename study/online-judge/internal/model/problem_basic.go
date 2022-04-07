@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -12,6 +11,7 @@ type ProblemBasic struct {
 	Content           string             `gorm:"column:content;type:text" json:"content"`
 	MaxMemory         string             `gorm:"column:max_memory;type:int(11)" json:"max_memory"`
 	MaxRuntime        string             `gorm:"column:max_runtime;type:int(11)" json:"max_runtime"`
+	TestCase          []*TestCase        `gorm:"foreignKey:problem_identity;references:identity" json:"test_case"`
 	gorm.Model
 }
 
@@ -31,13 +31,3 @@ func GetProblemList(keyword, categoryIdentity string) *gorm.DB {
 	}
 	return tx
 }
-
-func GetProblem(identity string) *ProblemBasic {
-	var ret *ProblemBasic
-	sql := "select `identity`, `category_id`, `title`, `content`, `max_memory`, `max_runtime`, `created_at`, `updated_at`, `deleted_at` " +
-		"from `problem` where `id` = ?"
-	ORM.Raw(sql, identity).Scan(&ret)
-	fmt.Printf("id: %v --> %v\n", ret.Identity, ret)
-	return ret
-}
-
