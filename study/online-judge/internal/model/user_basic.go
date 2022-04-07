@@ -10,6 +10,7 @@ type UserBasic struct {
 	Email            string `gorm:"column:email;type:varchar(100);" json:"email"`
 	FinishProblemNum int64  `gorm:"column:finish_problem_num;type:int(11);" json:"finish_problem_num"`
 	SubmitNum        int64  `gorm:"column:submit_num;type:int(11);" json:"submit_num"`
+	IsAdmin          int    `gorm:"column:is_admin;type:tinyint(1);" json:"is_admin"`
 	gorm.Model
 }
 
