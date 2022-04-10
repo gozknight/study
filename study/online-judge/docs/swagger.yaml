@@ -2,7 +2,7 @@ info:
   contact: {}
 paths:
   /admin/problem/add:
-    post:
+    put:
       parameters:
       - description: authorization
         in: header
@@ -47,7 +47,135 @@ paths:
       summary: 添加问题
       tags:
       - 私有方法
-  /problem:
+  /category/add:
+    put:
+      parameters:
+      - description: authorization
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: parent_id
+        in: formData
+        name: parent_id
+        type: string
+      responses:
+        "200":
+          description: '{"code":"200","msg":""}'
+          schema:
+            type: string
+      summary: 添加分类
+      tags:
+      - 私有方法
+  /category/delete:
+    delete:
+      parameters:
+      - description: authorization
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: identity
+        in: query
+        name: identity
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{"code":"200","msg":""}'
+          schema:
+            type: string
+      summary: 删除分类
+      tags:
+      - 私有方法
+  /category/edit:
+    post:
+      parameters:
+      - description: authorization
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: identity
+        in: query
+        name: identity
+        required: true
+        type: string
+      - description: name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: parent_id
+        in: formData
+        name: parent_id
+        type: string
+      responses:
+        "200":
+          description: '{"code":"200","msg":""}'
+          schema:
+            type: string
+      summary: 修改分类
+      tags:
+      - 私有方法
+  /category/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: authorization
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: size
+        in: query
+        name: size
+        type: integer
+      - description: keyword
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","data":""}'
+          schema:
+            type: string
+      summary: 查看分类列表
+      tags:
+      - 私有方法
+  /problem/{identity}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: identity
+        in: path
+        name: identity
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":"200","data":""}'
+          schema:
+            type: string
+      summary: 问题详情
+      tags:
+      - 公共方法
+  /problem/list:
     get:
       consumes:
       - application/json
@@ -78,26 +206,6 @@ paths:
       summary: 查看所有问题
       tags:
       - 公共方法
-  /problem/{identity}:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: identity
-        in: path
-        name: identity
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: '{"code":"200","data":""}'
-          schema:
-            type: string
-      summary: 问题详情
-      tags:
-      - 公共方法
   /rank:
     get:
       consumes:
@@ -121,7 +229,7 @@ paths:
       summary: 查看排名
       tags:
       - 公共方法
-  /submit:
+  /submit/list:
     get:
       consumes:
       - application/json

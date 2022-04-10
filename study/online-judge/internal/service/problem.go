@@ -21,7 +21,7 @@ import (
 // @Param keyword query string false "keyword"
 // @Param category_identity query string false "category_identity"
 // @Success 200 {string} json "{"code":"200","data":""}"
-// @Router /problem [get]
+// @Router /problem/list [get]
 func GetProblemList(c *gin.Context) {
 	size, err := strconv.Atoi(c.DefaultQuery("size", util.DefaultSize))
 	if err != nil {
@@ -104,7 +104,7 @@ func GetProblem(c *gin.Context) {
 // @Param category_ids formData array true "category_ids"
 // @Param test_cases formData array true "test_cases"
 // @Success 200 {string} json "{"code":"200","msg":""}"
-// @Router /admin/problem/add [post]
+// @Router /admin/problem/add [put]
 func AddProblem(c *gin.Context) {
 	title := c.PostForm("title")
 	content := c.PostForm("content")

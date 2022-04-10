@@ -21,7 +21,7 @@ import (
 // @Param user_identity query string false "user_identity"
 // @Param status query int false "status"
 // @Success 200 {string} json "{"code":"200","data":""}"
-// @Router /submit [get]
+// @Router /submit/list [get]
 func GetSubmitList(c *gin.Context) {
 	size, err := strconv.Atoi(c.DefaultQuery("size", util.DefaultSize))
 	if err != nil {
