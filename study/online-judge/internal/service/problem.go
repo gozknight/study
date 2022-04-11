@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"gozknight.com/online-judge/internal/model"
@@ -99,20 +100,20 @@ func GetProblem(c *gin.Context) {
 // @Param authorization header string true "authorization"
 // @Param title formData string true "tile"
 // @Param content formData string true "content"
-// @Param max_runtime formData string true "max_runtime"
-// @Param max_memory formData string true "max_memory"
-// @Param category_ids formData array true "category_ids"
-// @Param test_cases formData array true "test_cases"
+// @Param max_runtime formData int true "max_runtime"
+// @Param max_memory formData int true "max_memory"
+// @Param category_ids formData []string true "category_ids" collectionFormat(multi)
+// @Param test_cases formData []string true "test_cases" collectionFormat(multi)
 // @Success 200 {string} json "{"code":"200","msg":""}"
 // @Router /admin/problem/add [put]
 func AddProblem(c *gin.Context) {
 	title := c.PostForm("title")
 	content := c.PostForm("content")
-	maxRuntime := c.PostForm("max_runtime")
-	maxMemory := c.PostForm("max_memory")
+	maxRuntime, _ := strconv.Atoi(c.PostForm("max_runtime"))
+	maxMemory, _ := strconv.Atoi(c.PostForm("max_memory"))
 	categoryIds := c.PostFormArray("category_ids")
 	testCases := c.PostFormArray("test_cases")
-	if title == "" || content == "" || maxRuntime == "" || maxMemory == "" || len(categoryIds) == 0 || len(testCases) == 0 {
+	if title == "" || content == "" || len(categoryIds) == 0 || len(testCases) == 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"code": -1,
 			"msg":  "参数不能为空",
@@ -183,4 +184,106 @@ func AddProblem(c *gin.Context) {
 		"msg":  "问题创建成功",
 	})
 
+}
+
+// EditProblem
+// @Tags 私有方法
+// @Summary 修改问题
+// @Param authorization header string true "authorization"
+// @Param identity query string true "identity"
+// @Param title formData string true "title"
+// @Param content formData string true "content"
+// @Param max_runtime formData int true "max_runtime"
+// @Param max_memory formData int false "max_memory"
+// @Param category_ids formData []string false "category_ids" collectionFormat(multi)
+// @Param test_cases formData []string true "test_cases" collectionFormat(multi)
+// @Success 200 {string} json "{"code":"200","msg":""}"
+// @Router /admin/problem/edit [post]
+func EditProblem(c *gin.Context) {
+	identity := c.Query("identity")
+	title := c.PostForm("title")
+	content := c.PostForm("content")
+	maxRuntime, _ := strconv.Atoi(c.PostForm("max_runtime"))
+	maxMemory, _ := strconv.Atoi(c.PostForm("max_memory"))
+	categoryIds := c.PostFormArray("category_ids")
+	testCases := c.PostFormArray("test_cases")
+	if title == "" || content == "" || len(categoryIds) == 0 || len(testCases) == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "参数不能为空",
+		})
+		return
+	}
+	if err := model.ORM.Transaction(func(tx *gorm.DB) error {
+		problemBasic := &model.ProblemBasic{
+			Title:      title,
+			Content:    content,
+			MaxRuntime: maxRuntime,
+			MaxMemory:  maxMemory,
+		}
+		err := tx.Where("identity = ?", identity).Updates(problemBasic).Error
+		if err != nil {
+			return err
+		}
+		err = tx.Where("identity = ?", identity).Find(problemBasic).Error
+		if err != nil {
+			return err
+		}
+		err = tx.Where("problem_id = ?", problemBasic.ID).Delete(new(model.ProblemCategory)).Error
+		if err != nil {
+			return err
+		}
+		var pcs []*model.ProblemCategory
+		for _, id := range categoryIds {
+			intId, _ := strconv.Atoi(id)
+			pcs = append(pcs, &model.ProblemCategory{
+				ProblemId:  problemBasic.ID,
+				CategoryId: uint(intId),
+			})
+		}
+		err = tx.Create(&pcs).Error
+		if err != nil {
+			return err
+		}
+		err = tx.Where("problem_identity = ?", identity).Delete(new(model.TestCase)).Error
+		if err != nil {
+			return err
+		}
+		var tcs []*model.TestCase
+		for _, testcase := range testCases {
+			caseMap := make(map[string]string)
+			err := json.Unmarshal([]byte(testcase), &caseMap)
+			if err != nil {
+				return err
+			}
+			if _, ok := caseMap["input"]; !ok {
+				return errors.New("测试案例输入格式错误")
+			}
+			if _, ok := caseMap["output"]; !ok {
+				return errors.New("测试案例输出格式错误")
+			}
+			tcs = append(tcs, &model.TestCase{
+				Identity:        util.GetUuid(),
+				ProblemIdentity: identity,
+				Input:           caseMap["input"],
+				Output:          caseMap["output"],
+			})
+		}
+		err = tx.Create(tcs).Error
+		if err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "修改问题失败，" + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": -1,
+		"msg":  "修改问题成功，",
+	})
+	return
 }

@@ -1,53 +1,7 @@
 info:
   contact: {}
 paths:
-  /admin/problem/add:
-    put:
-      parameters:
-      - description: authorization
-        in: header
-        name: authorization
-        required: true
-        type: string
-      - description: tile
-        in: formData
-        name: title
-        required: true
-        type: string
-      - description: content
-        in: formData
-        name: content
-        required: true
-        type: string
-      - description: max_runtime
-        in: formData
-        name: max_runtime
-        required: true
-        type: string
-      - description: max_memory
-        in: formData
-        name: max_memory
-        required: true
-        type: string
-      - description: category_ids
-        in: formData
-        name: category_ids
-        required: true
-        type: array
-      - description: test_cases
-        in: formData
-        name: test_cases
-        required: true
-        type: array
-      responses:
-        "200":
-          description: '{"code":"200","msg":""}'
-          schema:
-            type: string
-      summary: 添加问题
-      tags:
-      - 私有方法
-  /category/add:
+  /admin/category/add:
     put:
       parameters:
       - description: authorization
@@ -72,7 +26,7 @@ paths:
       summary: 添加分类
       tags:
       - 私有方法
-  /category/delete:
+  /admin/category/delete:
     delete:
       parameters:
       - description: authorization
@@ -93,7 +47,7 @@ paths:
       summary: 删除分类
       tags:
       - 私有方法
-  /category/edit:
+  /admin/category/edit:
     post:
       parameters:
       - description: authorization
@@ -123,7 +77,7 @@ paths:
       summary: 修改分类
       tags:
       - 私有方法
-  /category/list:
+  /admin/category/list:
     get:
       consumes:
       - application/json
@@ -153,6 +107,113 @@ paths:
           schema:
             type: string
       summary: 查看分类列表
+      tags:
+      - 私有方法
+  /admin/problem/add:
+    put:
+      parameters:
+      - description: authorization
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: tile
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: content
+        in: formData
+        name: content
+        required: true
+        type: string
+      - description: max_runtime
+        in: formData
+        name: max_runtime
+        required: true
+        type: integer
+      - description: max_memory
+        in: formData
+        name: max_memory
+        required: true
+        type: integer
+      - collectionFormat: multi
+        description: category_ids
+        in: formData
+        items:
+          type: string
+        name: category_ids
+        required: true
+        type: array
+      - collectionFormat: multi
+        description: test_cases
+        in: formData
+        items:
+          type: string
+        name: test_cases
+        required: true
+        type: array
+      responses:
+        "200":
+          description: '{"code":"200","msg":""}'
+          schema:
+            type: string
+      summary: 添加问题
+      tags:
+      - 私有方法
+  /admin/problem/edit:
+    post:
+      parameters:
+      - description: authorization
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: identity
+        in: query
+        name: identity
+        required: true
+        type: string
+      - description: title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: content
+        in: formData
+        name: content
+        required: true
+        type: string
+      - description: max_runtime
+        in: formData
+        name: max_runtime
+        required: true
+        type: integer
+      - description: max_memory
+        in: formData
+        name: max_memory
+        type: integer
+      - collectionFormat: multi
+        description: category_ids
+        in: formData
+        items:
+          type: string
+        name: category_ids
+        type: array
+      - collectionFormat: multi
+        description: test_cases
+        in: formData
+        items:
+          type: string
+        name: test_cases
+        required: true
+        type: array
+      responses:
+        "200":
+          description: '{"code":"200","msg":""}'
+          schema:
+            type: string
+      summary: 修改问题
       tags:
       - 私有方法
   /problem/{identity}:
@@ -284,6 +345,33 @@ paths:
       summary: 用户详情
       tags:
       - 公共方法
+  /user/submit:
+    post:
+      parameters:
+      - description: authorization
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: problem_identity
+        in: query
+        name: problem_identity
+        required: true
+        type: string
+      - description: code
+        in: body
+        name: code
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: '{"code":"200","data":""}'
+          schema:
+            type: string
+      summary: 提交问题
+      tags:
+      - V1
   /v1/login:
     post:
       parameters:
@@ -304,9 +392,9 @@ paths:
             type: string
       summary: 用户登录
       tags:
-      - 公共方法
+      - V1
   /v1/register:
-    post:
+    put:
       parameters:
       - description: name
         in: formData
@@ -340,7 +428,7 @@ paths:
             type: string
       summary: 注册用户
       tags:
-      - 公共方法
+      - V1
   /v1/send:
     post:
       parameters:
@@ -356,5 +444,5 @@ paths:
             type: string
       summary: 发送验证码
       tags:
-      - 公共方法
+      - V1
 swagger: "2.0"

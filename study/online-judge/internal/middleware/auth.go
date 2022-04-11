@@ -30,3 +30,29 @@ func AuthAdmin() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// AuthUser 用户验证
+func AuthUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		auth := c.GetHeader("authorization")
+		userClaim, err := util.AnalyzeToken(auth)
+		if err != nil {
+			c.Abort()
+			c.JSON(http.StatusOK, gin.H{
+				"code": http.StatusUnauthorized,
+				"msg":  "Unauthorized err",
+			})
+			return
+		}
+		if userClaim == nil {
+			c.Abort()
+			c.JSON(http.StatusOK, gin.H{
+				"code": http.StatusUnauthorized,
+				"msg":  "Unauthorized not admin",
+			})
+			return
+		}
+		c.Set("user", userClaim)
+		c.Next()
+	}
+}

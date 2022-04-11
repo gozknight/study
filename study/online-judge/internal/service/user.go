@@ -12,7 +12,7 @@ import (
 )
 
 // Login
-// @Tags 公共方法
+// @Tags V1
 // @Summary 用户登录
 // @Param username formData string true "username"
 // @Param password formData string true "password"
@@ -88,7 +88,7 @@ func GetUser(c *gin.Context) {
 }
 
 // SendCode
-// @Tags 公共方法
+// @Tags V1
 // @Summary 发送验证码
 // @Param email formData string true "email"
 // @Success 200 {string} json "{"code":"200","data":""}"
@@ -115,7 +115,7 @@ func SendCode(c *gin.Context) {
 }
 
 // Register
-// @Tags 公共方法
+// @Tags V1
 // @Summary 注册用户
 // @Param name formData string true "name"
 // @Param password formData string true "password"
@@ -123,7 +123,7 @@ func SendCode(c *gin.Context) {
 // @Param email formData string true "email"
 // @Param code formData string true "code"
 // @Success 200 {string} json "{"code":"200","data":""}"
-// @Router /v1/register [post]
+// @Router /v1/register [put]
 func Register(c *gin.Context) {
 	name := c.PostForm("name")
 	password := c.PostForm("password")

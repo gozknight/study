@@ -16,74 +16,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/admin/problem/add": {
-            "put": {
-                "tags": [
-                    "私有方法"
-                ],
-                "summary": "添加问题",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "authorization",
-                        "name": "authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "tile",
-                        "name": "title",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "content",
-                        "name": "content",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "max_runtime",
-                        "name": "max_runtime",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "max_memory",
-                        "name": "max_memory",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "array",
-                        "description": "category_ids",
-                        "name": "category_ids",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "array",
-                        "description": "test_cases",
-                        "name": "test_cases",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\":\"200\",\"msg\":\"\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/category/add": {
+        "/admin/category/add": {
             "put": {
                 "tags": [
                     "私有方法"
@@ -121,7 +54,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/category/delete": {
+        "/admin/category/delete": {
             "delete": {
                 "tags": [
                     "私有方法"
@@ -153,7 +86,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/category/edit": {
+        "/admin/category/edit": {
             "post": {
                 "tags": [
                     "私有方法"
@@ -198,7 +131,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/category/list": {
+        "/admin/category/list": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -240,6 +173,161 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "{\"code\":\"200\",\"data\":\"\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/problem/add": {
+            "put": {
+                "tags": [
+                    "私有方法"
+                ],
+                "summary": "添加问题",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "authorization",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "tile",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "content",
+                        "name": "content",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "max_runtime",
+                        "name": "max_runtime",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "max_memory",
+                        "name": "max_memory",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "category_ids",
+                        "name": "category_ids",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "test_cases",
+                        "name": "test_cases",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/problem/edit": {
+            "post": {
+                "tags": [
+                    "私有方法"
+                ],
+                "summary": "修改问题",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "authorization",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "identity",
+                        "name": "identity",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "content",
+                        "name": "content",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "max_runtime",
+                        "name": "max_runtime",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "max_memory",
+                        "name": "max_memory",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "category_ids",
+                        "name": "category_ids",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "test_cases",
+                        "name": "test_cases",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"msg\":\"\"}",
                         "schema": {
                             "type": "string"
                         }
@@ -416,6 +504,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/submit": {
+            "post": {
+                "tags": [
+                    "V1"
+                ],
+                "summary": "提交问题",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "authorization",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "problem_identity",
+                        "name": "problem_identity",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "code",
+                        "name": "code",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":\"200\",\"data\":\"\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/user/{identity}": {
             "get": {
                 "consumes": [
@@ -450,7 +579,7 @@ const docTemplate = `{
         "/v1/login": {
             "post": {
                 "tags": [
-                    "公共方法"
+                    "V1"
                 ],
                 "summary": "用户登录",
                 "parameters": [
@@ -480,9 +609,9 @@ const docTemplate = `{
             }
         },
         "/v1/register": {
-            "post": {
+            "put": {
                 "tags": [
-                    "公共方法"
+                    "V1"
                 ],
                 "summary": "注册用户",
                 "parameters": [
@@ -535,7 +664,7 @@ const docTemplate = `{
         "/v1/send": {
             "post": {
                 "tags": [
-                    "公共方法"
+                    "V1"
                 ],
                 "summary": "发送验证码",
                 "parameters": [

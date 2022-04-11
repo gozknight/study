@@ -9,8 +9,10 @@ type ProblemBasic struct {
 	ProblemCategories []*ProblemCategory `gorm:"foreignKey:problem_id;references:id"`
 	Title             string             `gorm:"column:title;type:varchar(255)" json:"title"`
 	Content           string             `gorm:"column:content;type:text" json:"content"`
-	MaxMemory         string             `gorm:"column:max_memory;type:int(11)" json:"max_memory"`
-	MaxRuntime        string             `gorm:"column:max_runtime;type:int(11)" json:"max_runtime"`
+	MaxMemory         int                `gorm:"column:max_memory;type:int(11)" json:"max_memory"`
+	MaxRuntime        int                `gorm:"column:max_runtime;type:int(11)" json:"max_runtime"`
+	PassNum           int64              `gorm:"column:pass_num;type:int(11);" json:"pass_num"`
+	SubmitNum         int64              `gorm:"column:submit_num;type:int(11);" json:"submit_num"`
 	TestCase          []*TestCase        `gorm:"foreignKey:problem_identity;references:identity" json:"test_case"`
 	gorm.Model
 }

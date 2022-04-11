@@ -5,6 +5,7 @@ import (
 	. "fmt"
 	"io"
 	"os"
+	"sort"
 )
 
 func B(r io.Reader, w io.Writer) {
@@ -61,8 +62,60 @@ func A(r io.Reader, w io.Writer) {
 	}
 	Printf("%d %d\n", v+a, v+b)
 }
-
 func main() {
 	A(os.Stdin, os.Stdout)
 	B(os.Stdin, os.Stdout)
+}
+
+func canPartitionKSubsets(nums []int, k int) bool {
+	sum := 0
+	for _, num := range nums {
+		sum += num
+	}
+	if sum%k != 0 {
+		return false
+	}
+	sum /= k
+	sort.Ints(nums)
+	n := len(nums)
+	if nums[n-1] > sum || sum < nums[0] {
+		return false
+	}
+	bucket := make([]int, k)
+	for i := 0; i < k; i++ {
+		bucket[i] = sum
+	}
+	var dfs func(index int) bool
+	dfs = func(index int) bool {
+		if index < 0 {
+			return true
+		}
+		for i := 0; i < k; i++ {
+			if bucket[i] == nums[index] || bucket[i]-nums[index] >= nums[0] {
+				bucket[i] -= nums[index]
+				if dfs(index - 1) {
+					return true
+				}
+				bucket[i] += nums[index]
+			}
+		}
+		return false
+	}
+	return dfs(n - 1)
+}
+
+func uniqueMorseRepresentations(words []string) int {
+	alpha := []string{".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-", "..-", "...-", ".--", "-..-", "-.--", "--.."}
+	encode := func(word string) (ans string) {
+		for _, ch := range word {
+			ans += alpha[ch-'a']
+		}
+		return
+	}
+	set := make(map[string]bool)
+	for _, word := range words {
+		code := encode(word)
+		set[code] = true
+	}
+	return len(set)
 }
