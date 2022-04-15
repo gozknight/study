@@ -123,7 +123,7 @@ func SendCode(c *gin.Context) {
 // @Param email formData string true "email"
 // @Param code formData string true "code"
 // @Success 200 {string} json "{"code":"200","data":""}"
-// @Router /v1/register [put]
+// @Router /v1/register [post]
 func Register(c *gin.Context) {
 	name := c.PostForm("name")
 	password := c.PostForm("password")
@@ -219,7 +219,7 @@ func GetRankList(c *gin.Context) {
 	var count int64
 	page = (page - 1) * size
 	list := make([]*model.UserBasic, 0)
-	err = model.ORM.Model(new(model.UserBasic)).Count(&count).Order("finish_problem_num DESC, submit_num ASC").
+	err = model.ORM.Model(new(model.UserBasic)).Count(&count).Order("pass_num DESC, submit_num ASC").
 		Offset(page).Limit(size).Find(&list).Error
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{

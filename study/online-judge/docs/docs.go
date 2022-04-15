@@ -17,7 +17,7 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/admin/category/add": {
-            "put": {
+            "post": {
                 "tags": [
                     "私有方法"
                 ],
@@ -87,7 +87,7 @@ const docTemplate = `{
             }
         },
         "/admin/category/edit": {
-            "post": {
+            "put": {
                 "tags": [
                     "私有方法"
                 ],
@@ -181,7 +181,7 @@ const docTemplate = `{
             }
         },
         "/admin/problem/add": {
-            "put": {
+            "post": {
                 "tags": [
                     "私有方法"
                 ],
@@ -256,7 +256,7 @@ const docTemplate = `{
             }
         },
         "/admin/problem/edit": {
-            "post": {
+            "put": {
                 "tags": [
                     "私有方法"
                 ],
@@ -609,7 +609,7 @@ const docTemplate = `{
             }
         },
         "/v1/register": {
-            "put": {
+            "post": {
                 "tags": [
                     "V1"
                 ],

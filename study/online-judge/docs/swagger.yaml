@@ -2,7 +2,7 @@ info:
   contact: {}
 paths:
   /admin/category/add:
-    put:
+    post:
       parameters:
       - description: authorization
         in: header
@@ -48,7 +48,7 @@ paths:
       tags:
       - 私有方法
   /admin/category/edit:
-    post:
+    put:
       parameters:
       - description: authorization
         in: header
@@ -110,7 +110,7 @@ paths:
       tags:
       - 私有方法
   /admin/problem/add:
-    put:
+    post:
       parameters:
       - description: authorization
         in: header
@@ -162,7 +162,7 @@ paths:
       tags:
       - 私有方法
   /admin/problem/edit:
-    post:
+    put:
       parameters:
       - description: authorization
         in: header
@@ -394,7 +394,7 @@ paths:
       tags:
       - V1
   /v1/register:
-    put:
+    post:
       parameters:
       - description: name
         in: formData

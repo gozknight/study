@@ -41,15 +41,14 @@ func Router() *gin.Engine {
 	}
 
 	// 管理员
-	admin := r.Group("/admin", middleware.AuthAdmin())
 	{
-		admin.PUT("/problem/add", service.AddProblem)
+		admin := r.Group("/admin", middleware.AuthAdmin())
+		admin.POST("/problem/add", service.AddProblem)
 		admin.GET("/category/list", service.GetCategoryList)
-		admin.PUT("/category/add", service.AddCategory)
-		admin.POST("/category/edit", service.EditCategory)
+		admin.POST("/category/add", service.AddCategory)
+		admin.PUT("/category/edit", service.EditCategory)
 		admin.DELETE("/category/delete", service.DeleteCategory)
-
-		admin.POST("/problem/edit", service.EditProblem)
+		admin.PUT("/problem/edit", service.EditProblem)
 	}
 
 	{

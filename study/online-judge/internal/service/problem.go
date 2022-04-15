@@ -105,7 +105,7 @@ func GetProblem(c *gin.Context) {
 // @Param category_ids formData []string true "category_ids" collectionFormat(multi)
 // @Param test_cases formData []string true "test_cases" collectionFormat(multi)
 // @Success 200 {string} json "{"code":"200","msg":""}"
-// @Router /admin/problem/add [put]
+// @Router /admin/problem/add [post]
 func AddProblem(c *gin.Context) {
 	title := c.PostForm("title")
 	content := c.PostForm("content")
@@ -198,7 +198,7 @@ func AddProblem(c *gin.Context) {
 // @Param category_ids formData []string false "category_ids" collectionFormat(multi)
 // @Param test_cases formData []string true "test_cases" collectionFormat(multi)
 // @Success 200 {string} json "{"code":"200","msg":""}"
-// @Router /admin/problem/edit [post]
+// @Router /admin/problem/edit [put]
 func EditProblem(c *gin.Context) {
 	identity := c.Query("identity")
 	title := c.PostForm("title")

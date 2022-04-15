@@ -49,7 +49,6 @@ func GetSubmitList(c *gin.Context) {
 	list := make([]*model.SubmitBasic, 0)
 	tx := model.GetSubmitList(problemIdentity, userIdentity, status)
 	err = tx.Count(&count).Offset(page).Limit(size).Find(&list).Error
-	fmt.Printf("%v\n", list)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code": -1,

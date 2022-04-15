@@ -5,7 +5,7 @@
     },
     "paths": {
         "/admin/category/add": {
-            "put": {
+            "post": {
                 "tags": [
                     "私有方法"
                 ],
@@ -75,7 +75,7 @@
             }
         },
         "/admin/category/edit": {
-            "post": {
+            "put": {
                 "tags": [
                     "私有方法"
                 ],
@@ -169,7 +169,7 @@
             }
         },
         "/admin/problem/add": {
-            "put": {
+            "post": {
                 "tags": [
                     "私有方法"
                 ],
@@ -244,7 +244,7 @@
             }
         },
         "/admin/problem/edit": {
-            "post": {
+            "put": {
                 "tags": [
                     "私有方法"
                 ],
@@ -597,7 +597,7 @@
             }
         },
         "/v1/register": {
-            "put": {
+            "post": {
                 "tags": [
                     "V1"
                 ],
