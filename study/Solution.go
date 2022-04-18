@@ -60,6 +60,7 @@ func A(r io.Reader, w io.Writer) {
 	}
 	Printf("%d %d\n", v+a, v+b)
 }
+
 func main() {
 	A(os.Stdin, os.Stdout)
 	//B(os.Stdin, os.Stdout)
