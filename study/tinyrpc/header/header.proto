@@ -1,0 +1,39 @@
+syntax = "proto3";
+package header;
+option go_package = "./";
+
+// 压缩类型，Raw不压缩数据
+enum Compress{
+  Raw = 0;
+  Gzip = 1;
+  Snappy = 2;
+  Zlib = 3;
+}
+
+// 请求头信息
+message RequestHeader {
+  // 压缩类型
+  Compress  compress_type = 1;
+  // 远程调用过程方法名称
+  string  method = 2;
+  // rpc调用序号
+  uint64  id = 3;
+  // 数据长度
+  uint32  request_len = 4;
+  // 检验和
+  uint32  checksum = 5;
+}
+
+// 响应头信息
+message ResponseHeader {
+  // 压缩类型
+  Compress compress_type = 1;
+  // rpc调用序号
+  uint64 id = 2;
+  // 远程调用过程发生错误信息，若为空则不发生错误
+  string error = 3;
+  // 数据长度
+  uint32 response_len = 4;
+  // 检验和
+  uint32 checksum = 5;
+}
