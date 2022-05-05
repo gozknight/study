@@ -16,18 +16,20 @@ func init() {
 	}}
 }
 
-func (req *RequestHeader) ResetHeader() {
-	req.Id = 0
-	req.Checksum = 0
-	req.Method = ""
-	req.RequestLen = 0
-	req.CompressType = 0
+// ResetHeader reset request header
+func (h *RequestHeader) ResetHeader() {
+	h.Id = 0
+	h.Checksum = 0
+	h.Method = ""
+	h.CompressType = 0
+	h.RequestLen = 0
 }
 
-func (resp *ResponseHeader) ResetHeader() {
-	resp.ResponseLen = 0
-	resp.CompressType = 0
-	resp.Id = 0
-	resp.Checksum = 0
-	resp.Error = ""
+// ResetHeader reset response header
+func (h *ResponseHeader) ResetHeader() {
+	h.Error = ""
+	h.Id = 0
+	h.CompressType = 0
+	h.Checksum = 0
+	h.ResponseLen = 0
 }

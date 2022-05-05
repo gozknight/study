@@ -62,6 +62,37 @@ func A(r io.Reader, w io.Writer) {
 }
 
 func main() {
-	A(os.Stdin, os.Stdout)
+	//A(os.Stdin, os.Stdout)
 	//B(os.Stdin, os.Stdout)
+	Solve(os.Stdin, os.Stdout)
+}
+
+func Solve(r io.Reader, w io.Writer) {
+	in := bufio.NewReader(r)
+	out := bufio.NewWriter(w)
+	defer out.Flush()
+	var n, m int
+	Fscan(in, &n, &m)
+	arr := make([]int, n+1)
+	for i := 1; i <= n; i++ {
+		Fscan(in, &arr[i])
+	}
+	Println(arr)
+	diff := make([]int, n+2)
+	insert := func(l, r, cnt int) {
+		diff[l] += cnt
+		diff[r+1] -= cnt
+	}
+	for i := 1; i <= n; i++ {
+		insert(i, i, arr[i])
+	}
+	for i := 0; i < m; i++ {
+		var left, right, cnt int
+		Fscan(in, &left, &right, &cnt)
+		insert(left, right, cnt)
+	}
+	for i := 1; i <= n; i++ {
+		diff[i] += diff[i-1]
+		Fprintf(out, "%v\n", diff[i])
+	}
 }
