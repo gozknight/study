@@ -8,10 +8,10 @@ var (
 )
 
 func init() {
-	RequestPool = sync.Pool{New: func() interface{} {
+	RequestPool = sync.Pool{New: func() any {
 		return &RequestHeader{}
 	}}
-	ResponsePool = sync.Pool{New: func() interface{} {
+	ResponsePool = sync.Pool{New: func() any {
 		return &ResponseHeader{}
 	}}
 }

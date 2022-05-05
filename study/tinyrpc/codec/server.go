@@ -58,8 +58,8 @@ func reeadRequestHeader(r io.Reader, h *header.RequestHeader) error {
 	return nil
 }
 
-func (s *serverCodec) ReadRequestBody(x interface{}) error {
-	if x != nil {
+func (s *serverCodec) ReadRequestBody(param any) error {
+	if param != nil {
 		if s.request.RequestLen != 0 {
 			if err := read(s.r, make([]byte, s.request.RequestLen)); err != nil {
 				return err
@@ -67,7 +67,7 @@ func (s *serverCodec) ReadRequestBody(x interface{}) error {
 		}
 		return nil
 	}
-	if err := readRequestBody(s.r, &s.request, x); err != nil {
+	if err := readRequestBody(s.r, &s.request, param); err != nil {
 		return err
 	}
 	return nil
@@ -79,14 +79,17 @@ func readRequestBody(r io.Reader, h *header.RequestHeader, param interface{}) er
 	if err != nil {
 		return err
 	}
+	// 校验
 	if h.Checksum != 0 {
 		if crc32.ChecksumIEEE(reqBody) != h.Checksum {
 			return errs.UnexpectedChecksumError
 		}
 	}
+	// 判断压缩器是否存在
 	if _, ok := compressor.Compressors[compressor.CompressType(h.CompressType)]; !ok {
 		return errs.NotFoundCompressorError
 	}
+	// 解压
 	req, err := compressor.Compressors[compressor.CompressType(h.CompressType)].Unzip(reqBody)
 	if err != nil {
 		return err
@@ -94,7 +97,7 @@ func readRequestBody(r io.Reader, h *header.RequestHeader, param interface{}) er
 	return serializer.Serializers[serializer.Proto].Unmarshal(req, param)
 }
 
-func (s *serverCodec) WriteResponse(r *rpc.Response, param interface{}) error {
+func (s *serverCodec) WriteResponse(r *rpc.Response, param any) error {
 	s.mutex.Lock()
 	id, ok := s.pending[r.Seq]
 	if !ok {
@@ -109,10 +112,12 @@ func (s *serverCodec) WriteResponse(r *rpc.Response, param interface{}) error {
 	return nil
 }
 
-func writeResponse(w io.Writer, id uint64, serr string, compressType compressor.CompressType, param interface{}) (err error) {
+func writeResponse(w io.Writer, id uint64, serr string, compressType compressor.CompressType, param any) (err error) {
+	// 如果RPC调用结果有误，把param置为nil
 	if serr != "" {
 		param = nil
 	}
+	// 判断压缩器是否存在
 	if _, ok := compressor.Compressors[compressType]; !ok {
 		return errs.NotFoundCompressorError
 	}
@@ -123,6 +128,7 @@ func writeResponse(w io.Writer, id uint64, serr string, compressType compressor.
 			return err
 		}
 	}
+	// 压缩
 	compressBody, err := compressor.Compressors[compressType].Zip(respBody)
 	if err != nil {
 		return err
@@ -150,6 +156,7 @@ func writeResponse(w io.Writer, id uint64, serr string, compressType compressor.
 	if err = w.(*bufio.Writer).Flush(); err != nil {
 		return err
 	}
+	w.(*bufio.Writer).Flush()
 	return nil
 }
 

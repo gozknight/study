@@ -41,8 +41,8 @@ func NewClient(conn io.ReadWriteCloser, opts ...Option) *Client {
 	}
 }
 
-func (c *Client) Call(serviceMethod string, arg, reply interface{}) error {
-	return c.Client.Call(serviceMethod, arg, reply)
+func (c *Client) Call(serviceMethod string, args, reply any) error {
+	return c.Client.Call(serviceMethod, args, reply)
 }
 
 func (c *Client) AsyncCall(serviceMethod string, arg, reply interface{}) chan *rpc.Call {

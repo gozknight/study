@@ -23,35 +23,37 @@ type clientCodec struct {
 	pending    map[uint64]string
 }
 
-func NewClientCodec(coon io.ReadWriteCloser, compressType compressor.CompressType) rpc.ClientCodec {
+func NewClientCodec(conn io.ReadWriteCloser, compressType compressor.CompressType) rpc.ClientCodec {
 	return &clientCodec{
-		r:          bufio.NewReader(coon),
-		w:          bufio.NewWriter(coon),
-		c:          coon,
+		r:          bufio.NewReader(conn),
+		w:          bufio.NewWriter(conn),
+		c:          conn,
 		compressor: compressType,
 		pending:    make(map[uint64]string),
 	}
 }
 
-func (c *clientCodec) WriteRequest(r *rpc.Request, param interface{}) error {
+func (c *clientCodec) WriteRequest(r *rpc.Request, param any) error {
 	c.mutex.Lock()
 	c.pending[r.Seq] = r.ServiceMethod
 	c.mutex.Unlock()
-	err := writeRequest(c.w, r, c.compressor, param)
-	if err != nil {
+	if err := writeRequest(c.w, r, c.compressor, param); err != nil {
 		return err
 	}
 	return nil
 }
 
-func writeRequest(w io.Writer, r *rpc.Request, compressType compressor.CompressType, param interface{}) error {
+func writeRequest(w io.Writer, r *rpc.Request, compressType compressor.CompressType, param any) error {
+	// 判断压缩器是否存在
 	if _, ok := compressor.Compressors[compressType]; !ok {
 		return errs.NotFoundCompressorError
 	}
+	// 用Protobuf序列化器进行编码
 	reqBody, err := serializer.Serializers[serializer.Proto].Marshal(param)
 	if err != nil {
 		return err
 	}
+	// 压缩
 	compressBody, err := compressor.Compressors[compressType].Zip(reqBody)
 	if err != nil {
 		return err
@@ -79,6 +81,7 @@ func writeRequest(w io.Writer, r *rpc.Request, compressType compressor.CompressT
 	if err = w.(*bufio.Writer).Flush(); err != nil {
 		return err
 	}
+	w.(*bufio.Writer).Flush()
 	return nil
 }
 
@@ -102,13 +105,13 @@ func readResponseHeader(r io.Reader, h *header.ResponseHeader) error {
 	if err != nil {
 		return err
 	}
-	if err := proto.Unmarshal(pbHeader, h); err != nil {
+	if err = proto.Unmarshal(pbHeader, h); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c *clientCodec) ReadResponseBody(param interface{}) error {
+func (c *clientCodec) ReadResponseBody(param any) error {
 	if param == nil {
 		if c.response.ResponseLen != 0 {
 			if err := read(c.r, make([]byte, c.response.ResponseLen)); err != nil {
@@ -123,17 +126,20 @@ func (c *clientCodec) ReadResponseBody(param interface{}) error {
 	return nil
 }
 
-func readResponseBody(r io.Reader, h *header.ResponseHeader, param interface{}) error {
+func readResponseBody(r io.Reader, h *header.ResponseHeader, param any) error {
+	// 根据响应体长度，读取该长度的字节串
 	respBody := make([]byte, h.ResponseLen)
 	err := read(r, respBody)
 	if err != nil {
 		return err
 	}
+	// 校验
 	if h.Checksum != 0 {
 		if crc32.ChecksumIEEE(respBody) != h.Checksum {
 			return errs.UnexpectedChecksumError
 		}
 	}
+	// 判断压缩器是否存在
 	if _, ok := compressor.Compressors[compressor.CompressType(h.CompressType)]; !ok {
 		return errs.NotFoundCompressorError
 	}

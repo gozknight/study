@@ -26,7 +26,7 @@ func sendFrame(w io.Writer, data []byte) (err error) {
 	return
 }
 
-func write(w io.Writer, data []byte) (err error) {
+func write(w io.Writer, data []byte) error {
 	for i := 0; i < len(data); {
 		n, err := w.Write(data[i:])
 		if _, ok := err.(net.Error); !ok {
@@ -34,7 +34,7 @@ func write(w io.Writer, data []byte) (err error) {
 		}
 		i += n
 	}
-	return
+	return nil
 }
 
 func recvFrame(r io.Reader) (data []byte, err error) {
@@ -51,7 +51,7 @@ func recvFrame(r io.Reader) (data []byte, err error) {
 	return data, nil
 }
 
-func read(r io.Reader, data []byte) (err error) {
+func read(r io.Reader, data []byte) error {
 	for i := 0; i < len(data); {
 		n, err := r.Read(data[i:])
 		if err != nil {
@@ -61,5 +61,5 @@ func read(r io.Reader, data []byte) (err error) {
 		}
 		i += n
 	}
-	return
+	return nil
 }
