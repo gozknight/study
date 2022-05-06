@@ -11,6 +11,6 @@ var Serializers = map[SerializeType]Serializer{
 }
 
 type Serializer interface {
-	Marshal(msg interface{}) ([]byte, error)
-	Unmarshal(data []byte, msg interface{}) error
+	Marshal(message any) ([]byte, error)
+	Unmarshal(data []byte, message any) error
 }

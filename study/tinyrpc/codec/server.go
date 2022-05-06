@@ -14,15 +14,18 @@ import (
 )
 
 type serverCodec struct {
-	r       io.Reader
-	w       io.Writer
-	c       io.Closer
+	r io.Reader
+	w io.Writer
+	c io.Closer
+
 	request header.RequestHeader
-	mutex   sync.Mutex
-	seq     uint64
+
+	mutex   sync.Mutex // 保护 seq, pending
+	seq     uint64     // 一个自增的序号
 	pending map[uint64]uint64
 }
 
+// NewServerCodec Create a new server codec
 func NewServerCodec(conn io.ReadWriteCloser) rpc.ServerCodec {
 	return &serverCodec{
 		r:       bufio.NewReader(conn),
@@ -33,25 +36,26 @@ func NewServerCodec(conn io.ReadWriteCloser) rpc.ServerCodec {
 }
 
 func (s *serverCodec) ReadRequestHeader(r *rpc.Request) error {
-	s.request.ResetHeader()
-	err := reeadRequestHeader(s.r, &s.request)
+	s.request.ResetHeader() // 重置serverCodec结构体的请求头部
+	err := readRequestHeader(s.r, &s.request)
 	if err != nil {
 		return err
 	}
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	s.seq++
-	s.pending[s.seq] = s.request.Id
-	r.ServiceMethod = s.request.Method
-	r.Seq = s.seq
+	s.seq++                            // 序号自增
+	s.pending[s.seq] = s.request.Id    // 自增序号与请求头部的ID进行绑定
+	r.ServiceMethod = s.request.Method // 填充 r.ServiceMethod
+	r.Seq = s.seq                      // 填充 r.Seq
 	return nil
 }
 
-func reeadRequestHeader(r io.Reader, h *header.RequestHeader) error {
-	pbHeader, err := recvFrame(r)
+func readRequestHeader(r io.Reader, h *header.RequestHeader) (err error) {
+	pbHeader, err := recvFrame(r) // 读取请求头部文件
 	if err != nil {
 		return err
 	}
+	//将字节串Unmarshal成RequestHeader结构类型
 	if err = proto.Unmarshal(pbHeader, h); err != nil {
 		return err
 	}
@@ -59,28 +63,28 @@ func reeadRequestHeader(r io.Reader, h *header.RequestHeader) error {
 }
 
 func (s *serverCodec) ReadRequestBody(param any) error {
-	if param != nil {
-		if s.request.RequestLen != 0 {
+	if param == nil {
+		if s.request.RequestLen != 0 { // 废弃多余部分
 			if err := read(s.r, make([]byte, s.request.RequestLen)); err != nil {
 				return err
 			}
 		}
 		return nil
 	}
+
 	if err := readRequestBody(s.r, &s.request, param); err != nil {
-		return err
+		return nil
 	}
 	return nil
 }
 
-func readRequestBody(r io.Reader, h *header.RequestHeader, param interface{}) error {
+func readRequestBody(r io.Reader, h *header.RequestHeader, param any) error {
 	reqBody := make([]byte, h.RequestLen)
-	err := read(r, reqBody)
+	err := read(r, reqBody) // 根据请求体的大小，读取该大小的字节串
 	if err != nil {
 		return err
 	}
-	// 校验
-	if h.Checksum != 0 {
+	if h.Checksum != 0 { // 校验
 		if crc32.ChecksumIEEE(reqBody) != h.Checksum {
 			return errs.UnexpectedChecksumError
 		}
@@ -94,6 +98,7 @@ func readRequestBody(r io.Reader, h *header.RequestHeader, param interface{}) er
 	if err != nil {
 		return err
 	}
+	// 把字节串反序列化成proto结构
 	return serializer.Serializers[serializer.Proto].Unmarshal(req, param)
 }
 
@@ -106,21 +111,24 @@ func (s *serverCodec) WriteResponse(r *rpc.Response, param any) error {
 	}
 	delete(s.pending, r.Seq)
 	s.mutex.Unlock()
+
 	if err := writeResponse(s.w, id, r.Error, compressor.CompressType(s.request.CompressType), param); err != nil {
 		return err
 	}
+
 	return nil
 }
 
-func writeResponse(w io.Writer, id uint64, serr string, compressType compressor.CompressType, param any) (err error) {
-	// 如果RPC调用结果有误，把param置为nil
+func writeResponse(w io.Writer, id uint64, serr string,
+	compressType compressor.CompressType, param any) (err error) {
 	if serr != "" {
-		param = nil
+		param = nil // 如果RPC调用结果有误，把param置为nil
 	}
 	// 判断压缩器是否存在
 	if _, ok := compressor.Compressors[compressType]; !ok {
 		return errs.NotFoundCompressorError
 	}
+
 	var respBody []byte
 	if param != nil {
 		respBody, err = serializer.Serializers[serializer.Proto].Marshal(param)
@@ -129,7 +137,7 @@ func writeResponse(w io.Writer, id uint64, serr string, compressType compressor.
 		}
 	}
 	// 压缩
-	compressBody, err := compressor.Compressors[compressType].Zip(respBody)
+	compressedRespBody, err := compressor.Compressors[compressType].Zip(respBody)
 	if err != nil {
 		return err
 	}
@@ -140,21 +148,21 @@ func writeResponse(w io.Writer, id uint64, serr string, compressType compressor.
 	}()
 	h.Id = id
 	h.Error = serr
-	h.ResponseLen = uint32(len(compressBody))
-	h.Checksum = crc32.ChecksumIEEE(compressBody)
+	h.ResponseLen = uint32(len(compressedRespBody))
+	h.Checksum = crc32.ChecksumIEEE(compressedRespBody)
 	h.CompressType = header.Compress(compressType)
+
 	pbHeader, err := proto.Marshal(h)
-	if err != nil {
-		return err
+	if err != err {
+		return
 	}
+	// 发送响应头
 	if err = sendFrame(w, pbHeader); err != nil {
-		return err
+		return
 	}
-	if err = write(w, compressBody); err != nil {
-		return err
-	}
-	if err = w.(*bufio.Writer).Flush(); err != nil {
-		return err
+	// 发送响应体
+	if err = write(w, compressedRespBody); err != nil {
+		return
 	}
 	w.(*bufio.Writer).Flush()
 	return nil

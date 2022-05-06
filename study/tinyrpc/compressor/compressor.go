@@ -9,7 +9,7 @@ const (
 	Zlib
 )
 
-// Compressors TODO: implement compresssor
+// Compressors 四种压缩器的实现
 var Compressors = map[CompressType]Compressor{
 	Raw:    RawCompressor{},
 	Gzip:   GzipCompressor{},
@@ -17,6 +17,7 @@ var Compressors = map[CompressType]Compressor{
 	Zlib:   ZlibCompressor{},
 }
 
+// Compressor 压缩器接口
 type Compressor interface {
 	Zip([]byte) ([]byte, error)
 	Unzip([]byte) ([]byte, error)

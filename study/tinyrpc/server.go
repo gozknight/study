@@ -15,13 +15,13 @@ func NewServer() *Server {
 	return &Server{&rpc.Server{}}
 }
 
-func (s *Server) Serve(listener net.Listener) {
+func (s *Server) Serve(lis net.Listener) {
 	for {
-		conn, err := listener.Accept()
+		conn, err := lis.Accept()
 		if err != nil {
-			log.Printf("tinyrpc.Serve: accept error: %v\n", err.Error())
+			log.Print("tinyrpc.Serve: accept:", err.Error())
 			return
 		}
-		go s.Server.ServeCodec(codec.NewServerCodec(conn))
+		go s.Server.ServeCodec(codec.NewServerCodec(conn)) // 使用TinyRPC的解码器
 	}
 }
