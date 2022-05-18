@@ -4,7 +4,8 @@ import (
 	"bufio"
 	. "fmt"
 	"io"
-	"os"
+	"sort"
+	"strconv"
 )
 
 func B(r io.Reader, w io.Writer) {
@@ -64,35 +65,77 @@ func A(r io.Reader, w io.Writer) {
 func main() {
 	//A(os.Stdin, os.Stdout)
 	//B(os.Stdin, os.Stdout)
-	Solve(os.Stdin, os.Stdout)
+	Println(maxSmaller(24333, []int{4, 3}))
 }
-
-func Solve(r io.Reader, w io.Writer) {
-	in := bufio.NewReader(r)
-	out := bufio.NewWriter(w)
-	defer out.Flush()
-	var n, m int
-	Fscan(in, &n, &m)
-	arr := make([]int, n+1)
-	for i := 1; i <= n; i++ {
-		Fscan(in, &arr[i])
+func maxSmaller(N int, arr []int) string {
+	sort.Ints(arr)
+	str := strconv.Itoa(N)
+	n := len(str)
+	ans := make([]byte, n)
+	for i := 0; i < n; i++ {
+		cur := search(arr, int(str[i]&15))
+		ans[i] = byte(cur + '0')
 	}
-	Println(arr)
-	diff := make([]int, n+2)
-	insert := func(l, r, cnt int) {
-		diff[l] += cnt
-		diff[r+1] -= cnt
+	for i := 0; i < n; i++ {
+		if ans[i] < str[i] {
+			for j := i + 1; j < n; j++ {
+				ans[j] = byte(arr[len(arr)-1] + '0')
+			}
+			return string(ans)
+		}
 	}
-	for i := 1; i <= n; i++ {
-		insert(i, i, arr[i])
+	for i := 0; i < n; i++ {
+		if ans[i] > str[i] {
+			for j := i - 1; j >= 0; j-- {
+				if int(ans[j]&15) > arr[0] {
+					cur := searchLess(arr, int(ans[j]&15))
+					ans[j] = byte(cur + '0')
+					for k := j + 1; k < n; k++ {
+						ans[k] = byte(arr[len(arr)-1] + '0')
+					}
+					return string(ans)
+				}
+			}
+			var tmp []byte
+			for j := 0; j < n-1; j++ {
+				tmp = append(tmp, byte(arr[len(arr)-1]+'0'))
+			}
+			return string(tmp)
+		}
 	}
-	for i := 0; i < m; i++ {
-		var left, right, cnt int
-		Fscan(in, &left, &right, &cnt)
-		insert(left, right, cnt)
+	for i := n - 1; i >= 0; i-- {
+		if int(ans[i]&15) > arr[0] {
+			cur := searchLess(arr, int(ans[i]&15))
+			ans[i] = byte(cur + '0')
+			for j := i + 1; j < n; j++ {
+				ans[j] = byte(arr[len(arr)-1] + '0')
+			}
+			return string(ans)
+		}
 	}
-	for i := 1; i <= n; i++ {
-		diff[i] += diff[i-1]
-		Fprintf(out, "%v\n", diff[i])
+	var tmp []byte
+	for i := 0; i < n-1; i++ {
+		tmp = append(tmp, byte(arr[len(arr)-1]+'0'))
 	}
+	return string(tmp)
+}
+func search(arr []int, target int) int {
+	ans := arr[0]
+	for _, num := range arr {
+		if num > target {
+			break
+		}
+		ans = num
+	}
+	return ans
+}
+func searchLess(arr []int, target int) int {
+	ans := arr[0]
+	for _, num := range arr {
+		if num >= target {
+			break
+		}
+		ans = num
+	}
+	return ans
 }
